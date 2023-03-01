@@ -1,12 +1,17 @@
 import '@/styles/globals.css'
 import Navbar from 'components/Navbar'
+import { UserContext } from 'lib/context'
 import type { AppProps } from 'next/app'
+import { Toaster } from 'react-hot-toast'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      <Navbar />
-      <Component {...pageProps} />
+      <UserContext.Provider value={{ user: null, username: 'pilfi' }}>
+        <Navbar />
+        <Component {...pageProps} />
+        <Toaster />
+      </UserContext.Provider>
     </>
   )
 }

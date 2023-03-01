@@ -1,9 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
+import { useContext } from 'react'
+import { UserContext } from 'lib/context'
+
 
 export default function Navbar() {
-  const user = true
-  const username = true
+  const { user, username } = useContext(UserContext)
+  console.log("🚀 ~ file: Navbar.tsx:9 ~ Navbar ~ username:", username)
+
+
   return (
     <nav className='navbar'>
       <ul>
