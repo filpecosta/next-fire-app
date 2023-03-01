@@ -1,3 +1,11 @@
 import { createContext } from "react";
 
-export const UserContext = createContext({ user: null, username: "" });
+interface IUserContext {
+  user: any | {} | null;
+  username: string | null;
+}
+
+export const UserContext = createContext<IUserContext>({
+  user: null,
+  username: null,
+});
