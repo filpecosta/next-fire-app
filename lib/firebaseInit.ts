@@ -1,6 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  limit,
+  query,
+  where,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCAIp34XVx-FJ-xcGmhKeKj8gAA7BYYhXk",
@@ -27,7 +34,6 @@ export const googleSignIn = async () => {
     .then((result) => {
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
       // The signed-in user info.
       const user = result.user;
       // ...
@@ -43,3 +49,27 @@ export const googleSignIn = async () => {
       // ...
     });
 };
+
+// Receber o users/{uid} com o username
+export async function getUserWithUsername(username: any) {
+  const q = query(
+    collection(firestore, "users"),
+    where("username", "==", username),
+    limit(1)
+  );
+
+  // const querySnapshot = await getDocs(q);
+  const querySnapshot = await (await getDocs(q)).docs[0];
+
+  return querySnapshot;
+}
+
+// Converts a firestore document to JSON
+export function postToJson(doc: any) {
+  const data = doc.data();
+  return {
+    ...data,
+    createdAt: data?.createdAt?.toMillis() || 0,
+    updatedAt: data?.updatedAt?.toMillis() || 0,
+  };
+}
