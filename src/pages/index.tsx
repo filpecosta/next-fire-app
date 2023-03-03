@@ -1,14 +1,53 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
 import Link from 'next/link'
-
 import Loader from '../../components/Loader'
+import { collectionGroup, getDocs, limit, orderBy, query, startAfter, Timestamp, where } from 'firebase/firestore'
+import { firestore, postToJson } from 'lib/firebaseInit'
+import { useState } from 'react'
+import PostFeed from 'components/PostFeed'
 
-const inter = Inter({ subsets: ['latin'] })
+const LIMIT = 1
 
-export default function Home() {
+export default function Home(props: any) {
+  const [posts, setPosts] = useState<any>(props.posts)
+  const [loading, setLoading] = useState(false)
+
+  const [postsEnd, setPostsEnd] = useState(false)
+
+  async function getMorePosts() {
+    setLoading(true)
+
+    // Get the last visible post
+    const last = posts[posts.length - 1]
+
+    // Create a cursor for the last document
+    const cursor = typeof last.createdAt === 'number' ? Timestamp.fromMillis(last.createdAt) : last.createdAt;
+
+    // Create a query starting at the last document
+    const postsQuery = query(
+      collectionGroup(firestore, 'posts'),
+      where('type', '==', 'museum'),
+      orderBy('createdAt', 'desc'),
+      startAfter(cursor),
+      limit(LIMIT)
+    )
+
+    // Get new posts
+    const newPosts = await (await getDocs(postsQuery)).docs.map((doc) => {
+      return doc.data()
+    })
+
+    // Update posts in state
+    setPosts(posts.concat(newPosts))
+    setLoading(false)
+
+    // Check if there are no more posts
+    if (newPosts.length < LIMIT) {
+      setPostsEnd(true)
+    }
+
+  }
+
   return (
     <>
       <Head>
@@ -18,14 +57,40 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Loader show={true} />
-      <div>
-        <Link href={{
-          pathname: '[username]',
-          query: { username: 'johndoe' }
-        }}>John Doe Profile</Link>
-      </div>
+      <main>
+        <PostFeed posts={posts} />
+        {!loading && !postsEnd && (
+          <button onClick={getMorePosts}>Load More +</button>
+        )}
+
+        <Loader show={loading} />
+
+        {postsEnd && 'You have reached the end! No More posts :)'}
+
+      </main>
 
     </>
   )
+}
+
+
+export async function getServerSideProps() {
+
+  const postsQuery = query(
+    collectionGroup(firestore, 'posts'),
+    where('published', '==', true),
+    orderBy('createdAt', 'desc'),
+    limit(LIMIT)
+  )
+
+  const posts = (await getDocs(postsQuery)).docs.map(postToJson)
+
+
+
+
+  return {
+    props: {
+      posts
+    }
+  }
 }

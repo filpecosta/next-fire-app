@@ -7,20 +7,21 @@ export default function PostFeed({ posts, admin }: any) {
 
   return (
     posts ? (
-      posts.map((post) => {
-        <>
-          <PostItem key={post.slug} post={post} admin={admin} />
-          <div>a</div>
-        </>
-      })
-    ) : (
-      <div>null</div>
-    )
+      <>
+        {posts.map((post: any) => {
+          return (
+            <PostItem key={post.slug} post={post} admin={admin} />
+          )
+        })}
+      </>
+    ) : null
   )
+
+
 }
 
 
-function PostItem({ post, admin = false }) {
+function PostItem({ post, admin = false }: any) {
   // Calculate word count and reading time
   const wordCount = post.content.trim().split(/\s+/g).length
   const minutesToRead = (wordCount / 100 + 1).toFixed(0)
