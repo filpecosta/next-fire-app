@@ -26,7 +26,6 @@ export default function Home(props: any) {
     // Create a query starting at the last document
     const postsQuery = query(
       collectionGroup(firestore, 'posts'),
-      where('type', '==', 'museum'),
       orderBy('createdAt', 'desc'),
       startAfter(cursor),
       limit(LIMIT)
