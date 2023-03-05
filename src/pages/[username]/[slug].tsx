@@ -1,3 +1,5 @@
+import AuthCheck from 'components/AuthCheck'
+import HeartButton from 'components/HeartButton'
 import PostContent from 'components/PostContent'
 import { collectionGroup, doc, getDoc, getDocs, limit, query } from 'firebase/firestore'
 import { firestore, getUserWithUsername, postToJson } from 'lib/firebaseInit'
@@ -27,6 +29,10 @@ export default function SlugPost(props: any) {
         <p>
           <strong>{post.heartCount || 0}  🤍</strong>
         </p>
+
+        <AuthCheck>
+          <HeartButton postRef={postRef} />
+        </AuthCheck>
 
       </aside>
     </main>
