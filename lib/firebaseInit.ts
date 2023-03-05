@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import {
   collection,
   getDocs,
@@ -23,8 +24,14 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 
 // Initialize other services on firebaseApp...
+
+// Initialize Firebase Firestore
 export const firestore = getFirestore();
+// Initialize Firebase Auth
 export const auth = getAuth();
+//Initialize Firebase Storage
+export const storage = getStorage();
+export const STATE_CHANGED = "state_changed";
 
 export default firebaseApp;
 

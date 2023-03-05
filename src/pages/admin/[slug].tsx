@@ -1,4 +1,5 @@
 import AuthCheck from 'components/AuthCheck'
+import ImageUploader from 'components/ImageUploader'
 import Metatags from 'components/Metatags'
 import { doc, getDoc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { watch } from 'fs'
@@ -61,6 +62,8 @@ function PostManager() {
             <PostForm defaultValues={post} postRef={docRef} preview={preview} />
           </section>
 
+          <ImageUploader />
+
           {/* Area to change preview mode */}
           <aside>
             <h3>Tools</h3>
@@ -86,7 +89,9 @@ function PostForm({ defaultValues, postRef, preview }: any) {
   // register is a function to register the input of react-hook-form, its like a useState value of a standard  form
   // handleSubmit is a function to submit the form, its like a onSubmit of a standard form, do not needed to use preventDefault()
 
-  const { register, handleSubmit, watch, reset } = useForm({ defaultValues, mode: 'onChange' })
+  const { register, handleSubmit, watch, reset, formState: { errors, isDirty, isValid } } = useForm({ defaultValues, mode: 'onChange' })
+
+
 
 
   // Function will be called when the form is submitted
@@ -123,7 +128,16 @@ function PostForm({ defaultValues, postRef, preview }: any) {
       {!preview && (
         <div>
           {/* To connect textare with the form, you should passing a ref with register */}
-          <textarea  {...register('content')}></textarea>
+          <textarea  {...register('content', {
+            // Validation of the content and custom message error
+            maxLength: { value: 20000, message: 'content is to long' },
+            minLength: { value: 10, message: 'content is to short' },
+            required: { value: true, message: 'content is required' }
+          })}></textarea>
+
+          {/* Error message if errors.content have something to show in UI */}
+          {/* @ts-ignore */}
+          {errors.content && <p className='text-danger'>{errors.content.message}</p>}
 
 
 
@@ -133,7 +147,7 @@ function PostForm({ defaultValues, postRef, preview }: any) {
             <label>Published</label>
           </fieldset>
 
-          <button type='submit' className='btn-green'>
+          <button type='submit' className='btn-green' disabled={!isDirty || !isValid}>
             Save Changes
           </button>
         </div>
